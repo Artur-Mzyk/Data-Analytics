@@ -1,30 +1,18 @@
 data {
-    int<lower=0> N;
-    vector[N] weight;
-    real height[N];
-}
-
-parameters {
-    real alpha;
-    real beta;
-    real sigma;
-}
-
-transformed parameters {
-   vector[N] mu = weight * beta + alpha;
-}
-
-model {
-    alpha ~ norma(175, 15);
-    beta_ ~ normal(lognormal(0, 1));
-    sig ~ exponential(0.07);
-    height ~ normal(mu, sig);
+  int<lower=0> N; // Number of samples
+  real weight[N]; // Weight samples
+  real mu_mu;
+  real<lower=0> mu_sig;
+  real sig_lbd;
 }
 
 generated quantities {
-    real height_sample[N];
+  real height[N];
+  real alpha = normal_rng(mu_mu, mu_sig);
+  real beta_ = lognormal_rng(0, 1);
+  real sig = exponential_rng(sig_lbd);
 
-    for (n in 1:N) {
-        height_sample[i] = normal_rng(mu[i], sig);
-    }
+  for (n in 1:N) {
+    height[n] = normal_rng(alpha + beta_ * weight[n], sig);
+  }
 }
