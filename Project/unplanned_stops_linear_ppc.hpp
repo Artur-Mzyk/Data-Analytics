@@ -4,17 +4,23 @@ namespace unplanned_stops_linear_ppc_model_namespace {
 using stan::model::model_base_crtp;
 using namespace stan::math;
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 6> locations_array__ =
+static constexpr std::array<const char*, 11> locations_array__ =
   {" (found before start of program)",
-  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 7, column 2 to column 37)",
-  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 8, column 2 to column 49)",
-  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 10, column 2 to column 51)",
-  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 2, column 2 to column 13)",
-  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 3, column 2 to column 19)"};
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 7, column 2 to column 33)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 8, column 2 to column 34)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 9, column 2 to column 33)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 12, column 4 to column 77)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 11, column 17 to line 13, column 3)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 11, column 2 to line 13, column 3)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 2, column 2 to column 17)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 3, column 18 to column 19)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 3, column 2 to column 33)",
+  " (in 'C:/Users/gcyburt/Documents/repos/priv/AGH-Data-Analytics/Data-Analytics/Project/unplanned_stops_linear_ppc.stan', line 7, column 9 to column 10)"};
 class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_stops_linear_ppc_model> {
  private:
-  double beta_;
-  double cycle_time_;
+  int N;
+  Eigen::Matrix<double,-1,1> cycle_times_data__;
+  Eigen::Map<Eigen::Matrix<double,-1,1>> cycle_times{nullptr, 0};
  public:
   ~unplanned_stops_linear_ppc_model() {}
   unplanned_stops_linear_ppc_model(stan::io::var_context& context__,
@@ -37,18 +43,43 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
     try {
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
-      current_statement__ = 4;
-      context__.validate_dims("data initialization", "beta_", "double",
+      current_statement__ = 7;
+      context__.validate_dims("data initialization", "N", "int",
         std::vector<size_t>{});
-      beta_ = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 4;
-      beta_ = context__.vals_r("beta_")[(1 - 1)];
-      current_statement__ = 5;
-      context__.validate_dims("data initialization", "cycle_time_", "double",
-        std::vector<size_t>{});
-      cycle_time_ = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 5;
-      cycle_time_ = context__.vals_r("cycle_time_")[(1 - 1)];
+      N = std::numeric_limits<int>::min();
+      current_statement__ = 7;
+      N = context__.vals_i("N")[(1 - 1)];
+      current_statement__ = 7;
+      stan::math::check_greater_or_equal(function__, "N", N, 0);
+      current_statement__ = 8;
+      stan::math::validate_non_negative_index("cycle_times", "N", N);
+      current_statement__ = 9;
+      context__.validate_dims("data initialization", "cycle_times", "double",
+        std::vector<size_t>{static_cast<size_t>(N)});
+      cycle_times_data__ = Eigen::Matrix<double,-1,1>::Constant(N,
+                             std::numeric_limits<double>::quiet_NaN());
+      new (&cycle_times)
+        Eigen::Map<Eigen::Matrix<double,-1,1>>(cycle_times_data__.data(), N);
+      {
+        std::vector<local_scalar_t__> cycle_times_flat__;
+        current_statement__ = 9;
+        cycle_times_flat__ = context__.vals_r("cycle_times");
+        current_statement__ = 9;
+        pos__ = 1;
+        current_statement__ = 9;
+        for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
+          current_statement__ = 9;
+          stan::model::assign(cycle_times, cycle_times_flat__[(pos__ - 1)],
+            "assigning variable cycle_times", stan::model::index_uni(sym1__));
+          current_statement__ = 9;
+          pos__ = (pos__ + 1);
+        }
+      }
+      current_statement__ = 9;
+      stan::math::check_greater_or_equal(function__, "cycle_times",
+        cycle_times, 0);
+      current_statement__ = 10;
+      stan::math::validate_non_negative_index("predicted_stop_times", "N", N);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -127,18 +158,28 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
       if (stan::math::logical_negation(emit_generated_quantities__)) {
         return ;
       }
-      double beta = std::numeric_limits<double>::quiet_NaN();
-      current_statement__ = 1;
-      beta = stan::math::exponential_rng(beta_, base_rng__);
-      double cycle_time = std::numeric_limits<double>::quiet_NaN();
+      Eigen::Matrix<double,-1,1> predicted_stop_times =
+        Eigen::Matrix<double,-1,1>::Constant(N,
+          std::numeric_limits<double>::quiet_NaN());
+      double alpha = std::numeric_limits<double>::quiet_NaN();
       current_statement__ = 2;
-      cycle_time = stan::math::exponential_rng(cycle_time_, base_rng__);
-      double unplanned_stops_time = std::numeric_limits<double>::quiet_NaN();
+      alpha = stan::math::exponential_rng(1, base_rng__);
+      double beta = std::numeric_limits<double>::quiet_NaN();
       current_statement__ = 3;
-      unplanned_stops_time = stan::math::exp((beta * cycle_time));
+      beta = stan::math::exponential_rng(1, base_rng__);
+      current_statement__ = 6;
+      for (int i = 1; i <= N; ++i) {
+        current_statement__ = 4;
+        stan::model::assign(predicted_stop_times,
+          stan::math::exponential_rng((alpha + (beta *
+            stan::model::rvalue(cycle_times, "cycle_times",
+              stan::model::index_uni(i)))), base_rng__),
+          "assigning variable predicted_stop_times",
+          stan::model::index_uni(i));
+      }
+      out__.write(predicted_stop_times);
+      out__.write(alpha);
       out__.write(beta);
-      out__.write(cycle_time);
-      out__.write(unplanned_stops_time);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -187,8 +228,7 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
     names__ = std::vector<std::string>{};
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {
-      std::vector<std::string>
-        temp{"beta", "cycle_time", "unplanned_stops_time"};
+      std::vector<std::string> temp{"predicted_stop_times", "alpha", "beta"};
       names__.reserve(names__.size() + temp.size());
       names__.insert(names__.end(), temp.begin(), temp.end());
     }
@@ -201,8 +241,8 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {
       std::vector<std::vector<size_t>>
-        temp{std::vector<size_t>{}, std::vector<size_t>{},
-             std::vector<size_t>{}};
+        temp{std::vector<size_t>{static_cast<size_t>(N)},
+             std::vector<size_t>{}, std::vector<size_t>{}};
       dimss__.reserve(dimss__.size() + temp.size());
       dimss__.insert(dimss__.end(), temp.begin(), temp.end());
     }
@@ -213,9 +253,12 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
                           emit_generated_quantities__ = true) const final {
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {
+      for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
+        param_names__.emplace_back(std::string() + "predicted_stop_times" +
+          '.' + std::to_string(sym1__));
+      }
+      param_names__.emplace_back(std::string() + "alpha");
       param_names__.emplace_back(std::string() + "beta");
-      param_names__.emplace_back(std::string() + "cycle_time");
-      param_names__.emplace_back(std::string() + "unplanned_stops_time");
     }
   }
   inline void
@@ -224,16 +267,19 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
                             emit_generated_quantities__ = true) const final {
     if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {
+      for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
+        param_names__.emplace_back(std::string() + "predicted_stop_times" +
+          '.' + std::to_string(sym1__));
+      }
+      param_names__.emplace_back(std::string() + "alpha");
       param_names__.emplace_back(std::string() + "beta");
-      param_names__.emplace_back(std::string() + "cycle_time");
-      param_names__.emplace_back(std::string() + "unplanned_stops_time");
     }
   }
   inline std::string get_constrained_sizedtypes() const {
-    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"cycle_time\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"unplanned_stops_time\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"}]");
+    return std::string("[{\"name\":\"predicted_stop_times\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"generated_quantities\"},{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"}]");
   }
   inline std::string get_unconstrained_sizedtypes() const {
-    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"cycle_time\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"unplanned_stops_time\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"}]");
+    return std::string("[{\"name\":\"predicted_stop_times\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"generated_quantities\"},{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"},{\"name\":\"beta\",\"type\":{\"name\":\"real\"},\"block\":\"generated_quantities\"}]");
   }
   // Begin method overload boilerplate
   template <typename RNG> inline void
@@ -244,7 +290,7 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
               pstream = nullptr) const {
     const size_t num_params__ = 0;
     const size_t num_transformed = emit_transformed_parameters * (0);
-    const size_t num_gen_quantities = emit_generated_quantities * (((1 + 1) +
+    const size_t num_gen_quantities = emit_generated_quantities * (((N + 1) +
       1));
     const size_t num_to_write = num_params__ + num_transformed +
       num_gen_quantities;
@@ -262,7 +308,7 @@ class unplanned_stops_linear_ppc_model final : public model_base_crtp<unplanned_
               pstream = nullptr) const {
     const size_t num_params__ = 0;
     const size_t num_transformed = emit_transformed_parameters * (0);
-    const size_t num_gen_quantities = emit_generated_quantities * (((1 + 1) +
+    const size_t num_gen_quantities = emit_generated_quantities * (((N + 1) +
       1));
     const size_t num_to_write = num_params__ + num_transformed +
       num_gen_quantities;
