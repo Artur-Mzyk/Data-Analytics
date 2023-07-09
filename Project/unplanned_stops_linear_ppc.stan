@@ -1,11 +1,14 @@
 data {
-  real beta_;
-  real cycle_time_;  // Cycle time values
+  int<lower=0> N;  // Number of observations
+  vector<lower=0>[N] cycle_times;  // Cycle time values
 }
 
 generated quantities {
-  real beta = exponential_rng(beta_);
-  real cycle_time = exponential_rng(cycle_time_);
+  vector[N] predicted_stop_times;
+  real alpha = exponential_rng(1);
+  real beta = exponential_rng(1);
 
-  real unplanned_stops_time = exponential(beta*cycle_time);
+  for (i in 1:N) {
+    predicted_stop_times[i] = exponential_rng(alpha + beta * cycle_times[i]);
+  }
 }
