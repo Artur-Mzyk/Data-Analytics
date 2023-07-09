@@ -1,38 +1,29 @@
 data {
-  int<lower=0> N; // Number of samples
-  real unplanned_stops_times[N]; // Observed heights
-  vector[N] weight_counters;
-  vector[N] weight_cycles;
-  real mu_mu;
-  real<lower=0> mu_sig;
-  real sig_lbd;
+  int<lower=0> N;  // Number of observations
+  vector<lower=0>[N] unplanned_stops_times;  // Known unplanned stop time values
+  vector<lower=0>[N] cycle_times;  // Cycle time values
 }
 
 parameters {
-  real alpha; // Intercept
-  real beta_; // Slope
-  real gamma_; // Slope
-  real<lower=0> sig; // Standard deviation of height
-}
-
-transformed parameters {
-   vector[N] mu = weight_cycles * gamma_ + weight_counters * beta_ + alpha;
+  real<lower=0> alpha;  // Intercept
+  real<lower=0> beta;   // Slope
 }
 
 model {
-    alpha ~ normal(mu_mu, mu_sig);
-    beta_ ~ lognormal(0, 1);
-    gamma_ ~ lognormal(0, 1);
-    sig ~ exponential(sig_lbd);
-
-    // Likelihood
-    unplanned_stops_times ~ exponential(normal(mu, sig));
+  // Priors
+  alpha ~ exponential(1);  // Exponential prior for intercept
+  beta ~ exponential(1);   // Exponential prior for slope
+  
+  // Likelihood
+  for (i in 1:N) {
+    unplanned_stops_times[i] ~ exponential(alpha + beta * cycle_times[i]);
+  }
 }
 
 generated quantities {
-    real unplanned_stops_time[N];
-
-    for (n in 1:N) {
-        unplanned_stops_time[n] = exp(normal_rng(mu[n], sig));
-    }
+  vector[N] predicted_stop_times;
+  
+  for (i in 1:N) {
+    predicted_stop_times[i] = exponential_rng(alpha + beta * cycle_times[i]);
+  }
 }
