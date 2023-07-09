@@ -1,11 +1,11 @@
 data {
-  real alpha_; // Weight samples - counters
-  real beta_; // Weight samples - cycle times
+  real beta_;
+  real cycle_time_;  // Cycle time values
 }
 
 generated quantities {
-  real alpha = exponential_rng(alpha_);
   real beta = exponential_rng(beta_);
+  real cycle_time = exponential_rng(cycle_time_);
 
-  real unplanned_stops_time = exponential_rng(beta_);
+  real unplanned_stops_time = exponential(beta*cycle_time);
 }
