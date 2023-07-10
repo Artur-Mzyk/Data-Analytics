@@ -22,7 +22,7 @@ model {
   alpha ~ gamma(alpha_shape, alpha_scale);                     // Prior for shape parameter
   beta ~ gamma(beta_shape, beta_scale);                      // Prior for rate parameter
   gamma ~ gamma(gamma_shape, gamma_scale);
-  
+
   // Likelihood
   for (i in 1:N) {
     unplanned_stop_times[i] ~ gamma(alpha, beta * rejects[i] + gamma * cycle_times[i]);
@@ -31,9 +31,11 @@ model {
 
 generated quantities {
   vector[N] predicted_stop_times;
-  
+  vector[N] log_lik;
+
   // Generate predicted values
   for (i in 1:N) {
     predicted_stop_times[i] = gamma_rng(alpha, beta * rejects[i] + gamma * cycle_times[i]);
+    log_lik[i] = gamma_lpdf(unplanned_stop_times[i] | alpha, beta * rejects[i] + gamma * cycle_times[i]);
   }
 }

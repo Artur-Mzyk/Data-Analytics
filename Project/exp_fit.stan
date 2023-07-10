@@ -13,7 +13,7 @@ model {
   // Priors
   alpha ~ exponential(1);  // Exponential prior for intercept
   beta ~ exponential(1);   // Exponential prior for slope
-  
+
   // Likelihood
   for (i in 1:N) {
     unplanned_stops_times[i] ~ exponential(alpha + beta * cycle_times[i]);
@@ -22,8 +22,10 @@ model {
 
 generated quantities {
   vector[N] predicted_stop_times;
-  
+  vector[N] log_lik;
+
   for (i in 1:N) {
     predicted_stop_times[i] = exponential_rng(alpha + beta * cycle_times[i]);
+    log_lik[i] = exponential_lpdf(unplanned_stops_times[i] | alpha + beta * cycle_times[i]);
   }
 }
