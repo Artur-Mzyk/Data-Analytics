@@ -1,6 +1,6 @@
 data {
   int<lower=0> N;                         // Number of observations
-  vector<lower=0>[N] unplanned_stop_times; // Observed unplanned stop times
+  vector<lower=0, upper=1>[N] unplanned_stop_times; // Observed unplanned stop times
   vector<lower=0>[N] rejects;              // Values of the rejects variable
   vector<lower=0>[N] cycle_times;          // Values of the cycle_times variable
   real<lower=0> alpha_shape;
